@@ -31,18 +31,52 @@ $(document).ajaxError(function(event, jqXHR, err){
 });
 
 $(function(){
-	function getQuakes() {
-		$.getJSON(gov.usgs.quakesUrl, function(quakes){
-			gov.usgs.quakes = quakes;
-			$('.message').html('Displaying ' + quakes.length + ' earthquakes');
-
-			gov.usgs.quakesMap = new google.maps.Map($('.map-container')[0], {
-			    center: new google.maps.LatLng(0,0),        //centered on 0/0
-			    zoom: 2,                                    //zoom level 2
-			    mapTypeId: google.maps.MapTypeId.TERRAIN,   //terrain map
-			    streetViewControl: false                    //no street view
-			});
-		});
-	}
+	$.getJSON(gov.usgs.quakesUrl, function(quakes){
+		gov.usgs.quakes = quakes;
+		getQuakes();
+		addQuakeMarkers(gov.usgs.quakes, gov.usgs.quakesMap);
+	});
 }); //doc ready
+
+function getQuakes() {
+	$('.message').html('Displaying ' + gov.usgs.quakes.length + ' earthquakes');
+
+	gov.usgs.quakesMap = new google.maps.Map($('.map-container')[0], {
+	    center: new google.maps.LatLng(0,0),        //centered on 0/0
+	    zoom: 2,                                    //zoom level 2
+	    mapTypeId: google.maps.MapTypeId.TERRAIN,   //terrain map
+	    streetViewControl: false                    //no street view
+	});
+}
+
+function addQuakeMarkers(quakes, map) {
+	var quake;
+	var i;
+	var infoWindow;
+	for (i = 0; i < quakes.length; i++) {
+		quake = quakes[i];
+
+		if (quake.location && quake.location) {
+            quake.mapMarker = new google.maps.Marker({
+            	map: map,
+            	position: new google.maps.LatLng(quake.location.latitude, quake.location.longitude),
+            });
+        } // if has lat/lng
+
+        infoWindow = new google.maps.InfoWindow({
+   			content: new Date(quake.datetime).toLocaleString() + 
+            	': magnitude ' + quake.magnitude + ' at depth of ' + 
+                quake.depth + ' meters'
+		});
+		registerInfoWindow(map, quake.mapMarker, infoWindow);
+	}
+}
+
+function registerInfoWindow(map, marker, infoWindow) {
+    google.maps.event.addListener(marker, 'click', function(){
+
+        infoWindow.open(map, marker);
+
+    });                
+} //registerInfoWindow()
 

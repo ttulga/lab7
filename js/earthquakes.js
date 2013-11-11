@@ -31,6 +31,7 @@ $(document).ajaxError(function(event, jqXHR, err){
 });
 
 $(function(){
+	$('.message').html('Loading... <img src="img/loading.gif">');
 	$.getJSON(gov.usgs.quakesUrl, function(quakes){
 		gov.usgs.quakes = quakes;
 		getQuakes();
@@ -74,7 +75,10 @@ function addQuakeMarkers(quakes, map) {
 
 function registerInfoWindow(map, marker, infoWindow) {
     google.maps.event.addListener(marker, 'click', function(){
-
+    	if (gov.usgs.iw) {
+    		gov.usgs.iw.close(map, marker)
+    	}
+    	gov.usgs.iw = infoWindow;
         infoWindow.open(map, marker);
 
     });                

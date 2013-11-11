@@ -31,6 +31,7 @@ $(document).ajaxError(function(event, jqXHR, err){
 });
 
 $(function(){
+	// shows loading gif if map is slow
 	$('.message').html('Loading... <img src="img/loading.gif">');
 	$.getJSON(gov.usgs.quakesUrl, function(quakes){
 		gov.usgs.quakes = quakes;
@@ -40,8 +41,10 @@ $(function(){
 }); //doc ready
 
 function getQuakes() {
+	// used gov.usgs.quakes.length because quakes.length did not work
 	$('.message').html('Displaying ' + gov.usgs.quakes.length + ' earthquakes');
 
+	//creates the map and centers it at latlng (0,0)
 	gov.usgs.quakesMap = new google.maps.Map($('.map-container')[0], {
 	    center: new google.maps.LatLng(0,0),        //centered on 0/0
 	    zoom: 2,                                    //zoom level 2
@@ -64,6 +67,7 @@ function addQuakeMarkers(quakes, map) {
             });
         } // if has lat/lng
 
+        // displays information for markers
         infoWindow = new google.maps.InfoWindow({
    			content: new Date(quake.datetime).toLocaleString() + 
             	': magnitude ' + quake.magnitude + ' at depth of ' + 
@@ -75,12 +79,12 @@ function addQuakeMarkers(quakes, map) {
 
 function registerInfoWindow(map, marker, infoWindow) {
     google.maps.event.addListener(marker, 'click', function(){
+    	//closes info window for previously clicked marker
     	if (gov.usgs.iw) {
     		gov.usgs.iw.close(map, marker)
     	}
     	gov.usgs.iw = infoWindow;
         infoWindow.open(map, marker);
-
     });                
 } //registerInfoWindow()
 
